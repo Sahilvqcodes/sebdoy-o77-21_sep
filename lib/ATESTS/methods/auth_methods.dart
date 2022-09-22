@@ -71,18 +71,18 @@ class AuthMethods {
         //add user to our database
 
         model.User user = model.User(
-          username: username,
-          usernameLower: username.toLowerCase(),
-          uid: cred.user!.uid,
-          dateCreated: DateTime.now(),
-          photoUrl: profilePicUrl,
-          email: email,
-          country: country,
-          isPending: isPending,
-          bio: trimmedBio,
-          profileFlag: 'false',
-          profileBadge: 'false',
-        );
+            username: username,
+            usernameLower: username.toLowerCase(),
+            uid: cred.user!.uid,
+            dateCreated: DateTime.now(),
+            photoUrl: profilePicUrl,
+            email: email,
+            country: country,
+            isPending: isPending,
+            bio: trimmedBio,
+            profileFlag: 'false',
+            profileBadge: 'false',
+            blockList: []);
 
         await _firestore.collection('users').doc(cred.user!.uid).set(
               user.toJson(),

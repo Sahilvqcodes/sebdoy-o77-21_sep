@@ -14,6 +14,9 @@ import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 import '../methods/auth_methods.dart';
 import '../provider/user_provider.dart';
+import '../responsive/AMobileScreenLayout.dart';
+import '../responsive/AResponsiveLayout.dart';
+import '../responsive/AWebScreenLayout.dart';
 import '../utils/utils.dart';
 import '../zFeeds/comment_card_poll.dart';
 import '../models/poll.dart';
@@ -176,7 +179,7 @@ class _FullMessagePollState extends State<FullMessagePoll> {
   late CommentSort _selectedCommentSort;
   late CommentFilter _selectedCommentFilter;
 
-  _otherUsers(BuildContext context) async {
+  _otherUsers(BuildContext context, String? uid) async {
     return showDialog(
         context: context,
         builder: (context) {
@@ -195,7 +198,15 @@ class _FullMessagePollState extends State<FullMessagePoll> {
                 onPressed: () {
                   performLoggedUserAction(
                     context: context,
-                    action: () {},
+                    action: () {
+                      FirebaseFirestore.instance
+                          .collection("users")
+                          .doc(uid)
+                          .update({
+                        'blockList': FieldValue.arrayUnion([_poll.uid])
+                      });
+                      Navigator.pop(context);
+                    },
                   );
                 },
               ),
@@ -430,7 +441,18 @@ class _FullMessagePollState extends State<FullMessagePoll> {
                                     alignment: Alignment.center,
                                     child: IconButton(
                                       onPressed: () {
-                                        Navigator.of(context).pop();
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                ResponsiveLayout(
+                                              mobileScreenLayout:
+                                                  MobileScreenLayout("0"),
+                                              webScreenLayout:
+                                                  WebScreenLayout(),
+                                            ),
+                                          ),
+                                        );
                                       },
                                       icon: const Icon(Icons.arrow_back,
                                           color: Colors.black),
@@ -675,8 +697,8 @@ class _FullMessagePollState extends State<FullMessagePoll> {
                                                 onPressed: _poll.uid ==
                                                         user?.uid
                                                     ? () => _deletePost(context)
-                                                    : () =>
-                                                        _otherUsers(context),
+                                                    : () => _otherUsers(
+                                                        context, user?.uid),
                                                 icon:
                                                     const Icon(Icons.more_vert),
                                               ),
